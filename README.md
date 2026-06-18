@@ -11,7 +11,7 @@ Complete implementation of DecodeLabs Project 2 for Industrial Training Kit (Bat
 - Proper Spacing & Alignment
 
 ## 🚀 Live Demo
-[View Project]([index.html](https://chaithanya8861.github.io/decodelabs_task2/))
+[View Project](https://chaithanya8861.github.io/decodelabs_task2/)
 
 ## 📱 Features
 - **Responsive Navigation**: Hamburger menu → Inline desktop
