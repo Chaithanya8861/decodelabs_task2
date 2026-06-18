@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DecodeLabs · Project 2 · Fluid Layout</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <style>
+    /* ---------- RESET & BASE ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #f6f4f0;
+      color: #1c1c26;
+      line-height: 1.5;
+      padding: 1.25rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app {
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---------- TYPOGRAPHY (fluid with clamp) ---------- */
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 0.25rem;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-top: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    h3 {
+      font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+      font-weight: 600;
+      margin-top: 1.2rem;
+      margin-bottom: 0.3rem;
+    }
+
+    p,
+    li,
+    .text-body {
+      font-size: clamp(1rem, 1.2vw + 0.5rem, 1.2rem);
+      max-width: 70ch;
+      color: #2a2a38;
+    }
+
+    .subhead {
+      font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+      color: #4a4a5e;
+      border-left: 5px solid #a855f7;
+      padding-left: 1rem;
+      margin: 0.5rem 0 1.5rem 0;
+      font-weight: 500;
+    }
+
+    .badge {
+      background: #ede6ff;
+      color: #5b21b6;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.9rem;
+      border-radius: 40px;
+      letter-spacing: 0.3px;
+      display: inline-block;
+    }
+
+    /* ---------- CARDS & GRID ---------- */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .card {
+      background: white;
+      border-radius: 1.5rem;
+      padding: 1.5rem 1.6rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03), 0 1px 4px rgba(0, 0, 0, 0.06);
+      border: 1px solid #eae7e2;
+      transition: all 0.1s ease;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .card-highlight {
+      background: #faf8ff;
+      border-left: 6px solid #a855f7;
+    }
+
+    /* ---------- NAVIGATION (Popover API) ---------- */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid #e1ddd7;
+      margin-bottom: 1.8rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: clamp(1.2rem, 2.5vw, 1.9rem);
+      letter-spacing: -0.5px;
+      color: #1c1c26;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo small {
+      background: #1c1c26;
+      color: white;
+      padding: 0.1rem 0.7rem;
+      border-radius: 40px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+    }
+
+    .nav-toggle {
+      background: white;
+      border: 1px solid #cdc8c0;
+      padding: 0.4rem 1rem;
+      border-radius: 60px;
+      font-weight: 500;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.15s;
+      font-family: inherit;
+    }
+
+    .nav-toggle:hover {
+      background: #f0ece6;
+      border-color: #b0a9a0;
+    }
+
+    /* popover element */
+    .nav-popover {
+      border: none;
+      background: white;
+      padding: 1.6rem;
+      border-radius: 1.8rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+      margin-top: 0.3rem;
+      width: min(280px, 80vw);
+      border: 1px solid #e3dfd9;
+    }
+
+    .nav-popover ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .nav-popover li a {
+      text-decoration: none;
+      font-weight: 500;
+      color: #1c1c26;
+      font-size: 1.1rem;
+      padding: 0.4rem 0;
+      display: block;
+      border-bottom: 1px solid #f0ede8;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .nav-popover li:last-child a {
+      border-bottom: none;
+    }
+
+    .nav-popover li a:hover {
+      color: #7c3aed;
+    }
+
+    .nav-wrapper {
+      position: relative;
+    }
+
+    /* ---------- SECTION TARGETS (for smooth scroll) ---------- */
+    .section-target {
+      scroll-margin-top: 2rem;
+      padding-top: 0.5rem;
+    }
+
+    /* ---------- CHECKLIST (implementation) ---------- */
+    .checklist {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+    }
+
+    .checklist li::before {
+      content: "✓";
+      color: #7c3aed;
+      font-weight: 700;
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    /* ---------- MISC ---------- */
+    .footer-meta {
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #ddd9d2;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: #4f4f64;
+    }
+
+    .footer-meta a {
+      color: #1c1c26;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer-meta a:hover {
+      color: #7c3aed;
+    }
+
+    .thumb-note {
+      background: #ede9e3;
+      padding: 0.3rem 1.2rem;
+      border-radius: 60px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .container-demo {
+      container-type: inline-size;
+      background: #f4f1eb;
+      border-radius: 1.2rem;
+      padding: 1.2rem;
+      border: 1px dashed #cbc4ba;
+    }
+
+    .container-demo p {
+      font-size: clamp(0.9rem, 3cqw, 1.2rem);
+    }
+
+    .brand-tag {
+      background: #1c1c26;
+      color: white;
+      font-size: 0.6rem;
+      padding: 0.2rem 0.9rem;
+      border-radius: 40px;
+      letter-spacing: 0.4px;
+    }
+
+    /* ---------- RESPONSIVE: TABLET & DESKTOP ---------- */
+    @media (min-width: 640px) {
+      body {
+        padding: 2rem 2.5rem;
+      }
+      .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      body {
+        padding: 2.5rem 3.5rem;
+      }
+      .card-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      /* hide toggle on desktop */
+      .nav-toggle {
+        display: none;
+      }
+
+      /* make popover inline */
+      .nav-popover {
+        all: unset;
+        display: flex !important;
+        background: transparent;
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        width: auto;
+      }
+
+      .nav-popover ul {
+        flex-direction: row;
+        gap: 2.2rem;
+        padding: 0;
+      }
+
+      .nav-popover li a {
+        border-bottom: none;
+        padding: 0.2rem 0;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #2c2c3a;
+      }
+
+      .nav-popover li a:hover {
+        color: #7c3aed;
+      }
+
+      .nav-wrapper {
+        display: flex;
+        align-items: center;
+      }
+
+      .nav-bar {
+        flex-wrap: nowrap;
+      }
+    }
+
+    /* popover default hidden, but visible on desktop via override */
+    .nav-popover:not(:popover-open) {
+      display: none;
+    }
+
+    @media (min-width: 1024px) {
+      .nav-popover:not(:popover-open) {
+        display: flex !important;
+      }
+    }
+
+    /* extra spacing */
+    .mt-1 {
+      margin-top: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- ========== NAVIGATION (Popover API) ========== -->
+    <nav class="nav-bar">
+      <div class="logo">
+        DecodeLabs <small>P2</small>
+      </div>
+      <div class="nav-wrapper">
+        <button popovertarget="navPopover" class="nav-toggle" id="navToggle">
+          <span>☰</span> Menu
+        </button>
+        <div id="navPopover" popover class="nav-popover" role="menu">
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#fluid-grid">Fluid Grid</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ========== HOME SECTION ========== -->
+    <section id="home" class="section-target">
+      <header>
+        <h1>Responsive Web Layout</h1>
+        <div class="subhead">
+          Project 2 · Industrial Training Kit · Batch 2026
+        </div>
+        <p>
+          <span class="thumb-note">📱 Designing for thumbs · precision: mouse &gt; finger</span>
+        </p>
+        <p style="margin-top: 0.5rem;">
+          <strong>Content is like water</strong> — it adapts. From mobile-first to fluid typography,
+          every breakpoint is a bridge, not a fence.
+        </p>
+      </header>
+    </section>
+
+    <!-- ========== PROJECTS SECTION ========== -->
+    <section id="projects" class="section-target">
+      <h2>Architectural Harmony</h2>
+      <div class="card-grid">
+        <div class="card card-highlight">
+          <h3>📐 CSS Grid <span class="badge">2D</span></h3>
+          <p>Two‑dimensional architect. Define rows & columns, place items precisely. Perfect for overall page structure.</p>
+        </div>
+        <div class="card">
+          <h3>↔️ Flexbox <span class="badge">1D</span></h3>
+          <p>One‑dimensional specialist. Align items in a row or column. Great for navigation, cards, and components.</p>
+        </div>
+        <div class="card">
+          <h3>⚡ Clamp() <span class="badge">fluid</span></h3>
+          <p><code>font-size: clamp(1rem, 2.5vw, 2rem);</code> — fluid typography scales gracefully between viewport sizes.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== FLUID GRID SECTION ========== -->
+    <section id="fluid-grid" class="section-target">
+      <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin: 1rem 0;">
+        <div class="card" style="background: #fcfaf7;">
+          <h3>✅ Implementation Checklist</h3>
+          <ul class="checklist">
+            <li>Meta viewport: <code>width=device-width, initial-scale=1</code></li>
+            <li>Mobile‑first CSS with media queries</li>
+            <li>Responsive navigation (Popover API + desktop fallback)</li>
+            <li>Fluid typography with <code>clamp()</code></li>
+            <li>Flexbox &amp; Grid layout harmony</li>
+            <li>Proper spacing, alignment, accessibility</li>
+          </ul>
+        </div>
+
+        <div class="card container-demo" style="background: #f4f1eb;">
+          <h3 style="margin-top: 0;">🔮 Future‑Proofing</h3>
+          <p><strong>Beyond the viewport:</strong> Container Queries are coming. This card uses a container query (simulated) to adjust text size based on its own width.</p>
+          <p style="font-size: clamp(0.9rem, 3cqw, 1.2rem); margin-top: 0.5rem; background: #e3ddd4; padding: 0.5rem 1rem; border-radius: 60px;">
+            <span style="font-weight: 600;">🧪 Container query demo:</span> “Coding for the device that hasn’t been invented yet.”
+          </p>
+          <p style="margin-top: 0.3rem; font-size: 0.9rem; opacity: 0.7;">MDN Web Docs · CSS‑Tricks · CanIUse.com</p>
+        </div>
+      </div>
+
+      <!-- Mobile First Strategy -->
+      <div class="card" style="background: white; margin: 0.5rem 0;">
+        <h3>📱 Mobile‑First Strategy</h3>
+        <p style="max-width: 100%;">
+          <span style="background: #7c3aed; color: white; padding: 0.1rem 0.8rem; border-radius: 40px; font-weight: 600; margin-right: 0.4rem;">2026</span>
+          Breakpoints are bridges — from 320px to 1280px. The navigation uses the <strong>Popover API</strong> for a clean mobile menu,
+          and becomes inline on desktop. Every element is built from the content out.
+        </p>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1rem;">
+          <span style="background: #ede6ff; padding: 0.2rem 1.2rem; border-radius: 60px; font-weight: 500;">Grid + Flexbox</span>
+          <span style="background: #ede6ff; padding: 0.2rem 1.2rem; border-radius: 60px; font-weight: 500;">clamp() typography</span>
+          <span style="background: #ede6ff; padding: 0.2rem 1.2rem; border-radius: 60px; font-weight: 500;">Popover nav</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== CONTACT SECTION ========== -->
+    <section id="contact" class="section-target">
+      <div class="footer-meta" style="border-top: none; margin-top: 1rem;">
+        <div>
+          <span style="font-weight: 600;">DecodeLabs</span> · Greater Lucknow, India
+        </div>
+        <div>
+          <a href="mailto:decodelabs.tech@gmail.com">📧 decodelabs.tech@gmail.com</a>
+          <span style="margin: 0 0.5rem;">·</span>
+          <a href="#">+91 89330 06408</a>
+        </div>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <span>www.decodelabs.tech</span>
+          <span class="brand-tag">Project 2 · Fluid</span>
+        </div>
+      </div>
+    </section>
+
+    <p style="font-size: 0.7rem; color: #6f6f82; margin-top: 1rem; border-top: 1px solid #e1ddd7; padding-top: 1rem; text-align: center;">
+      DecodeLabs · Industrial Training Kit · Batch 2026 · Responsive Web Layout
+    </p>
+  </div>
+
+  <script>
+    // Ensure popover works correctly on all browsers
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggle = document.getElementById('navToggle');
+      const popover = document.getElementById('navPopover');
+      const navLinks = popover ? popover.querySelectorAll('a') : [];
+
+      // Close popover after clicking a link (mobile)
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          // On mobile, close the popover after navigation
+          if (window.innerWidth < 1024) {
+            if (popover && popover.hidePopover) {
+              popover.hidePopover();
+            }
+          }
+        });
+      });
+
+      // For browsers that might not support popover attribute properly
+      if (toggle && popover) {
+        const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+        if (!isDesktop) {
+          // Ensure popover is hidden on mobile load
+          if (popover.hidePopover) {
+            popover.hidePopover();
+          }
+        }
+      }
+
+      // Handle resize to manage popover state
+      let resizeTimer;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          const isDesktop = window.innerWidth >= 1024;
+          if (isDesktop && popover) {
+            // On desktop, popover should be visible (CSS handles it)
+            // But we need to ensure it's not in a broken state
+            if (popover.hidePopover && popover.matches(':popover-open')) {
+              // If it's open on desktop, we might want to keep it open
+              // but CSS handles visibility, so we just ensure it's not hidden by JS
+            }
+          }
+        }, 200);
+      });
+    });
+  </script>
+</body>
+</html>
